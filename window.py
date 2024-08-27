@@ -28,6 +28,12 @@ class Window:
     def draw_circle(self, rect, color):
         self.__canvas.create_oval(rect, fill = color)
 
+    def draw_rectangle(self, rect, color):
+        self.__canvas.create_rectangle(rect, fill = color)
+
+    def draw_text(self, x, y, text):
+        self.__canvas.create_text((x, y), text=text)
+
 
 class Point:
     def __init__(self, x, y):
@@ -44,7 +50,7 @@ class Line:
         self.point_2 = second
     
     def draw(self, canvas, color):
-        canvas.create_line(self.point_1.x, self.point_1.y, self.point_2.x, self.point_2.y, fill=color, width=2)
+        canvas.create_line(self.point_1.x, self.point_1.y, self.point_2.x, self.point_2.y, fill=color, width=5)
 
     def __repr__(self) -> str:
         return f"{self.point_1} -> {self.point_2}"

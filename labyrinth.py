@@ -1,73 +1,9 @@
 from window import*
 from power_up import*
+from enemy import*
+from cell import*
 import time
 import random
-
-
-class Cell:
-    def __init__(self, x1, x2,y1, y2, win = None):
-        self.power_up = None
-        self.center = Point((x1+x2)/2, (y1+y2)/2)
-        self.coordinate = ((x1, y1), (x2, y2))
-        self.walls = { "right": [Line(Point(x2, y1), Point(x2, y2)), True],
-                        "bottom": [Line(Point(x1, y2), Point(x2, y2)), True],
-                        "top": [Line(Point(x1, y1), Point(x2, y1)), True],
-                        "left": [Line(Point(x1, y1), Point(x1, y2)), True]
-                        }
-        self.right = None
-        self.left = None
-        self.top = None
-        self.bottom = None
-        self.win = win
-        self.exit = False
-        self.visited = False
-
-    def set_wall(self, wall):
-        self.walls[wall][1] = True
-
-    def delete_wall(self, wall):
-        self.walls[wall][1] = False
-        self.draw()
-
-    def draw(self, color = "black"):
-        for wall in self.walls.keys():
-            if self.walls[wall][1]:
-                self.win.draw_line(self.walls[wall][0], color)
-            else:
-                self.win.draw_line(self.walls[wall][0], "white")
-        if self.power_up is not None:
-            self.power_up.draw()
-
-    def draw_move(self, to_cell, undo=False):
-        line = Line(self.center, to_cell.center)
-        if undo:
-            self.win.draw_line(line, "white")
-        else:
-            self.win.draw_line(line, "blue")
-
-    def get_power_up(self, rarity):
-        if rarity == 0:
-            return
-        else:
-            rand = random.randrange(1, 100)
-            if rand < rarity:
-                rand = random.randrange(1, 6)
-                match(rand):
-                    case(1):
-                        self.power_up = Map(self, self.coordinate, self.win)
-                    case(2):
-                        self.power_up = Destroy(self, self.coordinate, self.win)
-                    case(3):
-                        self.power_up = LvL_up(self, self.coordinate, self.win)
-                    case(4):
-                        self.power_up = Heal(self, self.coordinate, self.win)
-                    case(5):
-                        self.power_up = Weapon_up(self, self.coordinate, self.win)
-                    case _:
-                        raise Exception("problem in labyrinth/Cell/get_power_up")
-
-    def __repr__(self):
-        return f'{self.walls["top"]}, {self.walls["right"]}, {self.walls["bottom"]}, {self.walls["left"]}'
 
 
 class Labyrinth:
@@ -89,6 +25,7 @@ class Labyrinth:
         self.power_up_rarity = power_up_rarity
         self.win = win
         self.__found_exit = False
+        self.exit = None
         self.__stack = []
         self.__create_cells()
 
@@ -104,11 +41,15 @@ class Labyrinth:
                                 self.win
                                 ))
                 row[-1].get_power_up(self.power_up_rarity)
-                row[-1].draw()
+                if i == 0 and j == 0:
+                    row[-1].draw("purple")
+                else:
+                    row[-1].draw("gray")
             cells.append(row)
+        self.win .draw_text(700, 50, "Escape Labyrinth")
         self.__stack.append(cells[0][0])
         self.__create_graph(cells)
-        self.__break_entrance_and_exit()
+        self.__break_exit()
         self.__break_walls_s()
         self.__reset_visited(cells)
 
@@ -130,16 +71,16 @@ class Labyrinth:
 
     def __animate(self):
         self.win.redraw()
-        time.sleep(0.1)
+        time.sleep(0.05)
 
-    def __break_entrance_and_exit(self):
-        temp = self.__stack[0]
-        temp.delete_wall("top")
+    def __break_exit(self):
+        temp = self.__stack[-1]
         for i in range(self.__num_rows-1):
             temp = temp.bottom
         for i in range(self.__num_cols-1):
             temp = temp.right
         temp.delete_wall("bottom")
+        self.exit = temp
         temp.exit = True
 
     #for maze generation
@@ -209,22 +150,8 @@ class Labyrinth:
             for j in range(0, self.__num_cols):
                 cells[i][j].visited = False
 
-    #solve the maze
-    def __solve_s(self, current):
-        self.__stack = [current]
-        while not self.__found_exit or len(self.__stack) == 0:
-            #self.__animate()
-            self.__stack[-1].visited = True  
-            next = self.__get_next_cell(self.__stack[-1])
-            if next is None:
-                self.__stack[-2].draw_move(self.__stack.pop(), True)
-            else:
-                self.__stack[-1].draw_move(next)
-                self.__stack.append(next)
-                if next.exit:
-                    self.__found_exit = True
 
-    #for solving maze
+    #called by __solve_s maze
     def __get_next_cell(self, current):
         if not current.walls["right"][1] and current.right is not None and not current.right.visited:
             return current.right
@@ -240,7 +167,56 @@ class Labyrinth:
         else:
             return None
 
+    #reveals the visible Cells
+    def __visible_cells(self):
+        for dir in ["top", "left", "bottom", "right"]:
+            looking_at = self.__stack[-1]
+            while not looking_at.walls[dir][1]:
+                if not looking_at.visible:
+                    looking_at.visible = True
+                    looking_at.draw()
+                match(dir):
+                    case("top"):
+                        looking_at = looking_at.top
+                    case("left"):
+                        looking_at = looking_at.left
+                    case("bottom"):
+                        if not looking_at.exit:
+                            looking_at = looking_at.bottom
+                        else:
+                            break
+                    case("right"):
+                        looking_at = looking_at.right
+            if not looking_at.visible:
+                looking_at.visible = True
+                looking_at.draw()
+
+    def create_enemy(self):
+        self.exit.enemy = Boss(5, 15, 5, self.exit)
+
+
+
+    #for the map power_up
     def solve(self, current = None):
         if current is None:
             current = self.__stack[-1]
         self.__solve_s(current)
+
+    #solve the maze
+    def __solve_s(self, current):
+        self.__stack = [current]
+        while not self.__found_exit or len(self.__stack) == 0:
+            self.__animate()
+            self.__stack[-1].visited = True 
+            self.__visible_cells()
+            next = self.__get_next_cell(self.__stack[-1])
+            if next is None:
+                self.__stack[-2].draw_move(self.__stack.pop(), True)
+            else:
+                self.__stack[-1].draw_move(next)
+                self.__stack.append(next)
+                if next.exit:
+                    self.__found_exit = True
+        if self.__found_exit:
+            self.__visible_cells()
+

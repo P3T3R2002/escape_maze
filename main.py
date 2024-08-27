@@ -9,8 +9,9 @@ from labyrinth import*
 def main():
     win = Window(1400, 1000)
 
-    labyrinth = Labyrinth(300, 100, 40, 40, 20, win, 5)
-    #labyrinth.solve()
+    labyrinth = Labyrinth(300, 100, 20, 20, 40, win, 5)
+    labyrinth.create_enemy()
+    labyrinth.solve()
 
 
     win.wait_for_close()
