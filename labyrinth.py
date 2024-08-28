@@ -46,7 +46,6 @@ class Labyrinth:
                 else:
                     row[-1].draw("gray")
             cells.append(row)
-        self.win .draw_text(700, 50, "Escape Labyrinth")
         self.__stack.append(cells[0][0])
         self.__create_graph(cells)
         self.__break_exit()
@@ -71,7 +70,7 @@ class Labyrinth:
 
     def __animate(self):
         self.win.redraw()
-        time.sleep(0.05)
+        time.sleep(0.01)
 
     def __break_exit(self):
         temp = self.__stack[-1]
@@ -82,6 +81,9 @@ class Labyrinth:
         temp.delete_wall("bottom")
         self.exit = temp
         temp.exit = True
+
+    def get_start(self):
+        return self.__stack[0]
 
     #for maze generation
     def __break_walls_s(self):
@@ -150,23 +152,6 @@ class Labyrinth:
             for j in range(0, self.__num_cols):
                 cells[i][j].visited = False
 
-
-    #called by __solve_s maze
-    def __get_next_cell(self, current):
-        if not current.walls["right"][1] and current.right is not None and not current.right.visited:
-            return current.right
-        
-        if not current.walls["bottom"][1] and current.bottom is not None and not current.bottom.visited:
-            return current.bottom
-
-        if not current.walls["left"][1] and current.left is not None and not current.left.visited:
-            return current.left
-
-        if not current.walls["top"][1] and current.top is not None and not current.top.visited:
-            return current.top
-        else:
-            return None
-
     #reveals the visible Cells
     def __visible_cells(self):
         for dir in ["top", "left", "bottom", "right"]:
@@ -206,17 +191,38 @@ class Labyrinth:
     def __solve_s(self, current):
         self.__stack = [current]
         while not self.__found_exit or len(self.__stack) == 0:
+            print("---------")
             self.__animate()
-            self.__stack[-1].visited = True 
-            self.__visible_cells()
+            self.__stack[-1].visited = True
             next = self.__get_next_cell(self.__stack[-1])
             if next is None:
-                self.__stack[-2].draw_move(self.__stack.pop(), True)
+                self.__stack.pop()
             else:
-                self.__stack[-1].draw_move(next)
                 self.__stack.append(next)
                 if next.exit:
                     self.__found_exit = True
         if self.__found_exit:
-            self.__visible_cells()
+            current = self.__stack[-1]
+            for i in range(len(self.__stack)):
+                print("++++++")
+                current.visited = False
+                pop = self.__stack.pop()
+                current.draw_move(pop)
+                current = pop
+
+    #called by __solve_s maze
+    def __get_next_cell(self, current):
+        if not current.walls["right"][1] and current.right is not None and not current.right.visited:
+            return current.right
+        
+        if not current.walls["bottom"][1] and current.bottom is not None and not current.bottom.visited:
+            return current.bottom
+
+        if not current.walls["left"][1] and current.left is not None and not current.left.visited:
+            return current.left
+
+        if not current.walls["top"][1] and current.top is not None and not current.top.visited:
+            return current.top
+        else:
+            return None
 

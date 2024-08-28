@@ -9,11 +9,12 @@ from labyrinth import*
 def main():
     win = Window(1400, 1000)
 
-    labyrinth = Labyrinth(300, 100, 20, 20, 40, win, 5)
+    labyrinth = Labyrinth(500, 100, 20, 20, 40, win, 5)
     labyrinth.create_enemy()
+    player = Player(5, 2, labyrinth.get_start())
     labyrinth.solve()
 
-
+    win.mainloop()
     win.wait_for_close()
 
 
