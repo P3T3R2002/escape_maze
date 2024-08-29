@@ -82,7 +82,8 @@ class Labyrinth:
         self.exit = temp
         temp.exit = True
 
-    def get_start(self):
+    def get_pos(self):
+        print(self.__stack[0])
         return self.__stack[0]
 
     #for maze generation
@@ -153,9 +154,9 @@ class Labyrinth:
                 cells[i][j].visited = False
 
     #reveals the visible Cells
-    def __visible_cells(self):
+    def visible_cells(self, pos):
         for dir in ["top", "left", "bottom", "right"]:
-            looking_at = self.__stack[-1]
+            looking_at = pos
             while not looking_at.walls[dir][1]:
                 if not looking_at.visible:
                     looking_at.visible = True

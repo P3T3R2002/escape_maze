@@ -26,8 +26,6 @@ class Map(__Power_up):
     def pick_up(self):
         self.maze.solve(self.cell)
         
-
-
 class Destroy(__Power_up):
     def __init__(self, cell, win = None):
         super().__init__(cell, win, "blue")

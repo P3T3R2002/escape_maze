@@ -1,31 +1,33 @@
-from tkinter import Tk, BOTH, Canvas, ttk
+from tkinter import Tk, BOTH, Canvas
 from player import*
 
 class Window:
-    def __init__(self, width, height):
-        self.__root = Tk()
-        self.__root.title = "Maze"
-        self.__root.geometry(f"{width}x{height}")
-        self.canvas = Canvas(self.__root, width=width, height=height, background = "white")
-        self.canvas.create_window(300, height/2+100, window=ttk.Button(self.__root, text="Down", command=Player.move_down()))
-        self.canvas.create_window(150, height/2, window=ttk.Button(self.__root, text="Left", command=Player.move_left()))
-        self.canvas.create_window(450, height/2, window=ttk.Button(self.__root, text="Right", command=Player.move_right()))
-        self.canvas.create_window(300, height/2-100, window=ttk.Button(self.__root, text="Up", command=Player.move_up()))
+    def __init__(self, width, height, controller):
+        self.root = Tk()
+        self.root.title = "Maze"
+        self.root.geometry(f"{width}x{height}")
+        self.root.bind("w", self.move_up)
+        self.root.bind("s", self.move_down)
+        self.root.bind("a", self.move_left)
+        self.root.bind("d", self.move_right)
+        self.canvas = Canvas(self.root, width=width, height=height, background = "white")
         self.canvas.pack(fill="both", expand=True)
         self.running = False
-        self.__root.protocol("WM_DELETE_WINDOW", self.__close)
+        self.root.protocol("WM_DELETE_WINDOW", self.__close)
+        self.__controller = controller
 
-    def mainloop(self):
-        self.__root.mainloop()
-
-    def wait_for_close(self):
-        self.running = True
-        while self.running:
-            self.redraw()
+    def move_up(self, event):
+        self.__controller.move_player('up')
+    def move_down(self, event):
+        self.__controller.move_player('down')
+    def move_left(self, event):
+        self.__controller.move_player('left')
+    def move_right(self, event):
+        self.__controller.move_player('right')
 
     def redraw(self):
-        self.__root.update()
-        self.__root.update_idletasks()
+        self.root.update()
+        self.root.update_idletasks()
 
     def __close(self):
         self.running = False
@@ -70,8 +72,13 @@ class Circle(Drawable):
         return f"Circle: {self.point_1} -> {self.point_2}"
         
 class Triangle(Drawable):
-    def __init__(self, win, first, second, third):
+    def __init__(self, win, first = None, second = None, third = None):
         super().__init__(win, first, second, third)
+        
+    def set_points(self, pos):
+        self.point_1 = Point(pos[0], pos[1])
+        self.point_2 = Point(pos[2], pos[3])
+        self.point_3 = Point(pos[4], pos[5])
 
     def draw(self, color):
         self.win.canvas.create_polygon(self.point_1.pos, self.point_2.pos, self.point_3.pos, fill=color)
@@ -82,7 +89,7 @@ class Triangle(Drawable):
 class Rectangle(Drawable):
     def __init__(self, win, first, second):
         super().__init__(win, first, second)
-   
+
     def draw(self, color):
         self.win.canvas.create_rectangle(self.point_1.pos, self.point_2.pos, fill=color)
         
