@@ -1,6 +1,5 @@
 from window import*
 from power_up import*
-from enemy import*
 from cell import*
 import time
 import random
@@ -26,6 +25,7 @@ class Labyrinth:
         self.win = win
         self.__found_exit = False
         self.exit = None
+        self.start = None
         self.__stack = []
         self.__create_cells()
 
@@ -57,10 +57,10 @@ class Labyrinth:
             for j in range(0, self.__num_cols):
                 current = cells[i][j]
                 if i-1 in range(0, self.__num_rows) and j in range(0, self.__num_cols):
-                    current.top = cells[i-1][j]
+                    current.up = cells[i-1][j]
 
                 if i+1 in range(0, self.__num_rows) and j in range(0, self.__num_cols):
-                    current.bottom = cells[i+1][j]
+                    current.down = cells[i+1][j]
 
                 if i in range(0, self.__num_rows) and j-1 in range(0, self.__num_cols):
                     current.left = cells[i][j-1]
@@ -74,16 +74,16 @@ class Labyrinth:
 
     def __break_exit(self):
         temp = self.__stack[-1]
+        self.start = temp
         for i in range(self.__num_rows-1):
-            temp = temp.bottom
+            temp = temp.down
         for i in range(self.__num_cols-1):
             temp = temp.right
-        temp.delete_wall("bottom")
+        temp.delete_wall("down")
         self.exit = temp
         temp.exit = True
 
     def get_pos(self):
-        print(self.__stack[0])
         return self.__stack[0]
 
     #for maze generation
@@ -96,18 +96,18 @@ class Labyrinth:
                 self.__stack.pop()
             else:
                 self.__move_to_next(possible_next)
-
+        
     #for maze generation
     def __add_unvisited_neighbors(self, current):
         possible_next = []
         if current.left is not None and not current.left.visited:
             possible_next.append("left")
             
-        if current.top is not None and not current.top.visited:
-            possible_next.append("top")
+        if current.up is not None and not current.up.visited:
+            possible_next.append("up")
 
-        if current.bottom is not None and not current.bottom.visited:
-            possible_next.append("bottom")
+        if current.down is not None and not current.down.visited:
+            possible_next.append("down")
 
         if current.right is not None and not current.right.visited:
             possible_next.append("right")
@@ -119,33 +119,54 @@ class Labyrinth:
     #for maze generation 
     def __move_to_next(self, possible_next):
             match(possible_next[random.randrange(0, len(possible_next))]):
-                case("top"):
-                    self.__stack[-1].delete_wall("top")
-                    self.__stack[-1].top.delete_wall("bottom")
-                    #self.__animate()
-                    self.__stack.append(self.__stack[-1].top)
+                case("up"):
+                    self.__stack[-1].delete_wall("up")
+                    self.__stack[-1].up.delete_wall("down")
+                    self.__stack.append(self.__stack[-1].up)
 
-                case("bottom"):
-                    self.__stack[-1].delete_wall("bottom")
-                    self.__stack[-1].bottom.delete_wall("top")
-                    #self.__animate()
-                    self.__stack.append(self.__stack[-1].bottom)
+                case("down"):
+                    self.__stack[-1].delete_wall("down")
+                    self.__stack[-1].down.delete_wall("up")
+                    self.__stack.append(self.__stack[-1].down)
 
                 case("left"):
                     self.__stack[-1].delete_wall("left")
                     self.__stack[-1].left.delete_wall("right")
-                    #self.__animate()
                     self.__stack.append(self.__stack[-1].left)
 
                 case("right"):
                     self.__stack[-1].delete_wall("right")
                     self.__stack[-1].right.delete_wall("left")
-                    #self.__animate()
                     self.__stack.append(self.__stack[-1].right)
 
                 case _:
-                    raise Exception("Problem in Maze/__break_walls_r")
-        
+                    raise Exception("Problem in Maze/__move_to_next")
+                
+            if random.randrange(1, 8) == 1:   
+                match(random.randrange(1, 5)):
+                    case(1):
+                        if self.__stack[-1].up is not None:
+                            self.__stack[-1].delete_wall("up")
+                            self.__stack[-1].up.delete_wall("down")
+
+                    case(2):
+                        if self.__stack[-1].down is not None:
+                            self.__stack[-1].delete_wall("down")
+                            self.__stack[-1].down.delete_wall("up")
+
+                    case(3):
+                        if self.__stack[-1].left is not None:
+                            self.__stack[-1].delete_wall("left")
+                            self.__stack[-1].left.delete_wall("right")
+
+                    case(4):
+                        if self.__stack[-1].right is not None:
+                            self.__stack[-1].delete_wall("right")
+                            self.__stack[-1].right.delete_wall("left")
+
+                    case _:
+                        raise Exception("Problem in Maze/__move_to_next")
+
     #reset visited
     def __reset_visited(self, cells):      
         self.__stack = [cells[0][0]]
@@ -155,20 +176,20 @@ class Labyrinth:
 
     #reveals the visible Cells
     def visible_cells(self, pos):
-        for dir in ["top", "left", "bottom", "right"]:
+        for dir in ["up", "left", "down", "right"]:
             looking_at = pos
             while not looking_at.walls[dir][1]:
                 if not looking_at.visible:
                     looking_at.visible = True
                     looking_at.draw()
                 match(dir):
-                    case("top"):
-                        looking_at = looking_at.top
+                    case("up"):
+                        looking_at = looking_at.up
                     case("left"):
                         looking_at = looking_at.left
-                    case("bottom"):
+                    case("down"):
                         if not looking_at.exit:
-                            looking_at = looking_at.bottom
+                            looking_at = looking_at.down
                         else:
                             break
                     case("right"):
@@ -177,22 +198,17 @@ class Labyrinth:
                 looking_at.visible = True
                 looking_at.draw()
 
-    def create_enemy(self):
-        self.exit.enemy = Boss(5, 15, 5, self.exit)
-
-
-
     #for the map power_up
     def solve(self, current = None):
         if current is None:
             current = self.__stack[-1]
         self.__solve_s(current)
 
+
     #solve the maze
-    def __solve_s(self, current):
+    def __solve_s(self, current, color = "blue"):
         self.__stack = [current]
         while not self.__found_exit or len(self.__stack) == 0:
-            print("---------")
             self.__animate()
             self.__stack[-1].visited = True
             next = self.__get_next_cell(self.__stack[-1])
@@ -205,10 +221,9 @@ class Labyrinth:
         if self.__found_exit:
             current = self.__stack[-1]
             for i in range(len(self.__stack)):
-                print("++++++")
                 current.visited = False
                 pop = self.__stack.pop()
-                current.draw_move(pop)
+                current.draw_move(pop, color)
                 current = pop
 
     #called by __solve_s maze
@@ -216,14 +231,14 @@ class Labyrinth:
         if not current.walls["right"][1] and current.right is not None and not current.right.visited:
             return current.right
         
-        if not current.walls["bottom"][1] and current.bottom is not None and not current.bottom.visited:
-            return current.bottom
+        if not current.walls["down"][1] and current.down is not None and not current.down.visited:
+            return current.down
 
         if not current.walls["left"][1] and current.left is not None and not current.left.visited:
             return current.left
 
-        if not current.walls["top"][1] and current.top is not None and not current.top.visited:
-            return current.top
+        if not current.walls["up"][1] and current.up is not None and not current.up.visited:
+            return current.up
         else:
             return None
 

@@ -9,15 +9,15 @@ class Cell:
         self.center = Point((x1+x2)/2, (y1+y2)/2)
         self.rect = Rectangle(win, Point(x1, y1), Point(x2, y2))
         self.walls = { "right": [Line(win, Point(x2, y1), Point(x2, y2)), True],
-                        "bottom": [Line(win, Point(x1, y2), Point(x2, y2)), True],
-                        "top": [Line(win, Point(x1, y1), Point(x2, y1)), True],
+                        "down": [Line(win, Point(x1, y2), Point(x2, y2)), True],
+                        "up": [Line(win, Point(x1, y1), Point(x2, y1)), True],
                         "left": [Line(win, Point(x1, y1), Point(x1, y2)), True]
                         }
         self.win = win
         self.right = None
         self.left = None
-        self.top = None
-        self.bottom = None
+        self.up = None
+        self.down = None
         self.exit = False
         self.enemy = None
         self.visited = False
@@ -31,8 +31,7 @@ class Cell:
 
     def draw(self, color = "black"):
         if self.visible:
-            if not self.visited:
-                self.rect.draw("white")
+            self.rect.draw("white")
             for wall in self.walls.keys():
                 if self.walls[wall][1]:
                     self.walls[wall][0].draw(color)
@@ -43,8 +42,8 @@ class Cell:
         else:
             self.rect.draw(color)
 
-    def draw_move(self, to_cell):
-        Line(self.win, self.center, to_cell.center).draw("blue")
+    def draw_move(self, to_cell, color):
+        Line(self.win, self.center, to_cell.center).draw(color)
 
     def get_power_up(self, rarity):
         if rarity == 0:
@@ -52,7 +51,7 @@ class Cell:
         else:
             rand = random.randrange(1, 100)
             if rand < rarity:
-                rand = random.randrange(1, 6)
+                rand = random.randrange(1, 2)
                 match(rand):
                     case(1):
                         self.power_up = Map(self, self.win)
@@ -67,5 +66,9 @@ class Cell:
                     case _:
                         raise Exception("problem in labyrinth/Cell/get_power_up")
 
+    def pick_up(self):
+        self.power_up.pick_up(self)
+        self.draw()
+
     def __repr__(self):
-        return f'{self.walls["top"]}, {self.walls["right"]}, {self.walls["bottom"]}, {self.walls["left"]}'
+        return f'{self.walls["up"]}, {self.walls["right"]}, {self.walls["down"]}, {self.walls["left"]}'

@@ -1,4 +1,4 @@
-
+from power_up import*
 
 class Player:
     def __init__(self, hp, attack, maze, triang):
@@ -12,41 +12,31 @@ class Player:
         self.icon.set_points(self.get_coords())
         self.draw_pos()
 
+    def move(self, direction):
+        if self.right_dir(direction):
+            self.pos.draw()
+            match(direction):
+                case("up"):
+                        self.pos = self.pos.up
+                case("down"):
+                        self.pos = self.pos.down
+                case("left"):
+                        self.pos = self.pos.left
+                case("right"):
+                        self.pos = self.pos.right
+                case _:
+                    raise Exception("wrong direction in Player/move")
+            if self.pos.power_up is not None:
+                self.pos.pick_up()   
+            self.draw_pos()
 
-    def move_up(self):
-        if not self.pos.walls["top"][1]:
-            self.pos.draw()
-            self.pos = self.pos.top
-            self.icon.set_points(self.get_coords())
-            self.draw_pos()
-            self.maze.visible_cells(self.pos)
-        
-    def move_down(self):
-        if not self.pos.walls["bottom"][1]:
-            self.pos.draw()
-            self.pos = self.pos.bottom
-            self.icon.set_points(self.get_coords())
-            self.draw_pos()
-            self.maze.visible_cells(self.pos)
-
-    def move_left(self):
-        if not self.pos.walls["left"][1]:
-            self.pos.draw()
-            self.pos = self.pos.left
-            self.icon.set_points(self.get_coords())
-            self.draw_pos()
-            self.maze.visible_cells(self.pos)
-
-    def move_right(self):
-        if not self.pos.walls["right"][1]:
-            self.pos.draw()
-            self.pos = self.pos.right
-            self.icon.set_points(self.get_coords())
-            self.draw_pos()
-            self.maze.visible_cells(self.pos)
+    def right_dir(self, dir):
+         return not self.pos.walls[dir][1]
 
     def get_coords(self):
         return self.pos.center.pos[0], self.pos.rect.point_1.pos[1], self.pos.rect.point_1.pos[0], self.pos.rect.point_2.pos[1], self.pos.rect.point_2.pos[0], self.pos.rect.point_2.pos[1]
 
     def draw_pos(self):
+        self.icon.set_points(self.get_coords())
         self.icon.draw("orange")
+        self.maze.visible_cells(self.pos)

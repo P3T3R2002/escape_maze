@@ -1,4 +1,5 @@
 from labyrinth import*
+from player import*
 
 class GameController:
     def __init__(self):
@@ -7,21 +8,11 @@ class GameController:
         self.player = Player(5, 2, self.labyrinth, Triangle(self.window))
     
     def move_player(self, direction):
-        match(direction):
-            case("up"):
-                self.player.move_up()
-            case("down"):
-                self.player.move_down()
-            case("left"):
-                self.player.move_left()
-            case("right"):
-                self.player.move_right()
-            case _:
-                pass
+        self.player.move(direction)
 
 
-    def solve(self):
-        self.labyrinth.solve()
+    def solve(self, cell):
+        self.labyrinth.solve(cell)
         
     def wait_for_close(self):
         self.window.running = True

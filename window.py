@@ -1,5 +1,4 @@
 from tkinter import Tk, BOTH, Canvas
-from player import*
 
 class Window:
     def __init__(self, width, height, controller):
@@ -14,16 +13,16 @@ class Window:
         self.canvas.pack(fill="both", expand=True)
         self.running = False
         self.root.protocol("WM_DELETE_WINDOW", self.__close)
-        self.__controller = controller
+        self.controller = controller
 
     def move_up(self, event):
-        self.__controller.move_player('up')
+        self.controller.move_player('up')
     def move_down(self, event):
-        self.__controller.move_player('down')
+        self.controller.move_player('down')
     def move_left(self, event):
-        self.__controller.move_player('left')
+        self.controller.move_player('left')
     def move_right(self, event):
-        self.__controller.move_player('right')
+        self.controller.move_player('right')
 
     def redraw(self):
         self.root.update()
