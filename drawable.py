@@ -69,4 +69,9 @@ class Text(Drawable):
         self.draw()
 
     def draw(self):
+        self.delete()
         self.win.canvas.create_text(self.point_1, text=self.txt)
+
+    def delete(self):
+        self.win.canvas.create_rectangle(self.point_1[0]-50, self.point_1[1]-10, self.point_1[0]+50, self.point_1[1]+10, fill="white")
+

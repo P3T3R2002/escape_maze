@@ -52,14 +52,14 @@ class Cell:
         else:
             rand = random.randrange(1, 100)
             if rand < rarity:
-                rand = random.randrange(1, 3)
+                rand = random.randrange(1, 6)
                 match(rand):
                     case(1):
                         self.power_up = Map(self, self.win)
                     case(2):
                         self.power_up = Destroy(self, self.win)
                     case(3):
-                        self.power_up = LvL_up(self, self.win)
+                        self.power_up = Gold(self, self.win)
                     case(4):
                         self.power_up = Heal(self, self.win)
                     case(5):

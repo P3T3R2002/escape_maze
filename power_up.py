@@ -45,22 +45,32 @@ class Destroy(Power_up):
             cell.right.delete_wall("left")
         super().pick_up(cell)
 
-class LvL_up(Power_up):
+class Gold(Power_up):
     def __init__(self, cell, win = None):
         super().__init__(cell, win, "yellow")
         self.max_num = None
+        
+    def pick_up(self, cell):
+        self._Power_up__item.win.controller.gold()
+        super().pick_up(cell)
     
 class Weapon_up(Power_up):
     def __init__(self, cell, win = None):
         super().__init__(cell, win, "gray")
         self.max_num = None
 
+    def pick_up(self, cell):
+        self._Power_up__item.win.controller.attack_up()
+        super().pick_up(cell)
+
 class Heal(Power_up):
     def __init__(self, cell, win = None):
         super().__init__(cell, win, "red")
         self.max_num = None
 
-
+    def pick_up(self, cell):
+        self._Power_up__item.win.controller.heal_up()
+        super().pick_up(cell)
 
 
 

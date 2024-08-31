@@ -6,6 +6,7 @@ class Player:
         self.level = 1
         self.hp = hp
         self.attack = attack
+        self.gold = 0
         self.maze = maze
         self.pos = maze.get_pos()
         self.destroy = 1
@@ -40,3 +41,13 @@ class Player:
         self.icon.set_points(self.get_coords())
         self.icon.draw("orange")
         self.maze.visible_cells(self.pos)
+
+    def wepon_upgrade(self):
+         self.attack += 1
+
+    def heal_potion(self):
+         if self.hp < 5:
+            self.hp += 1
+
+    def get_gold(self):
+         self.gold += 5
