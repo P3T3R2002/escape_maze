@@ -1,5 +1,6 @@
 from window import*
 from power_up import*
+from drawable import*
 import random
 
 
@@ -51,7 +52,7 @@ class Cell:
         else:
             rand = random.randrange(1, 100)
             if rand < rarity:
-                rand = random.randrange(1, 2)
+                rand = random.randrange(1, 3)
                 match(rand):
                     case(1):
                         self.power_up = Map(self, self.win)

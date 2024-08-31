@@ -198,14 +198,13 @@ class Labyrinth:
                 looking_at.visible = True
                 looking_at.draw()
 
-    #for the map power_up
+    #for solve_s(NOT CALLED)
     def solve(self, current = None):
         if current is None:
             current = self.__stack[-1]
         self.__solve_s(current)
 
-
-    #solve the maze
+    #solve the maze(NOT CALLED)
     def __solve_s(self, current, color = "blue"):
         self.__stack = [current]
         while not self.__found_exit or len(self.__stack) == 0:
@@ -226,7 +225,7 @@ class Labyrinth:
                 current.draw_move(pop, color)
                 current = pop
 
-    #called by __solve_s maze
+    #called by __solve_s maze(NOT CALLED)
     def __get_next_cell(self, current):
         if not current.walls["right"][1] and current.right is not None and not current.right.visited:
             return current.right
@@ -241,4 +240,22 @@ class Labyrinth:
             return current.up
         else:
             return None
+
+    def map(self):
+        self.__make_visible()
+
+    def __make_visible(self):
+        current_row = self.start
+        while True:
+            current = current_row
+            while current.right is not None:
+                current = current.right
+                current.visible = True
+                current.draw()
+            if current == self.exit:
+                break
+            current_row = current_row.down
+            current_row.visible = True
+            current_row.draw()
+
 

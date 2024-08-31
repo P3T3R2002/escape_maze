@@ -10,9 +10,8 @@ class GameController:
     def move_player(self, direction):
         self.player.move(direction)
 
-
-    def solve(self, cell):
-        self.labyrinth.solve(cell)
+    def map(self):
+        self.labyrinth.map()
         
     def wait_for_close(self):
         self.window.running = True

@@ -1,4 +1,4 @@
-from window import Circle
+from drawable import Circle
 
 
 class Power_up:
@@ -22,13 +22,28 @@ class Map(Power_up):
         self.max_num = None
 
     def pick_up(self, cell):
-        self._Power_up__item.win.controller.solve(cell)
+        self._Power_up__item.win.controller.map()
         super().pick_up(cell)
         
 class Destroy(Power_up):
     def __init__(self, cell, win = None):
         super().__init__(cell, win, "blue")
         self.max_num = None
+
+    def pick_up(self, cell):
+        if cell.up is not None:
+            cell.delete_wall("up")
+            cell.up.delete_wall("down")
+        if cell.down is not None:
+            cell.delete_wall("down")
+            cell.down.delete_wall("up")
+        if cell.left is not None:
+            cell.delete_wall("left")
+            cell.left.delete_wall("right")
+        if cell.right is not None:
+            cell.delete_wall("right")
+            cell.right.delete_wall("left")
+        super().pick_up(cell)
 
 class LvL_up(Power_up):
     def __init__(self, cell, win = None):
