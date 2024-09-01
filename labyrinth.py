@@ -40,17 +40,15 @@ class Labyrinth:
                                 j*self.__cell_size + self.__y + self.__cell_size,
                                 self.win
                                 ))
-                row[-1].get_power_up(self.power_up_rarity)
-                if i == 0 and j == 0:
-                    row[-1].draw("purple")
-                else:
-                    row[-1].draw("gray")
             cells.append(row)
         self.__stack.append(cells[0][0])
         self.__create_graph(cells)
         self.__break_exit()
         self.__break_walls_s()
         self.__reset_visited(cells)
+        self.__loop_to_end(Cell.get_power_up)
+        self.__loop_to_end(Cell.get_enemy)
+        self.__loop_to_end(Cell.draw)
 
     def __create_graph(self, cells):
         for i in range(0, self.__num_rows):
@@ -89,8 +87,7 @@ class Labyrinth:
     #for maze generation
     def __break_walls_s(self):
         while len(self.__stack) != 0:
-            self.__stack[-1].visited = True
-                
+            self.__stack[-1].visited = True        
             possible_next = self.__add_unvisited_neighbors(self.__stack[-1])
             if possible_next is None:
                 self.__stack.pop()
@@ -218,20 +215,21 @@ class Labyrinth:
             return None
 
     def map(self):
-        self.__make_visible()
+        self.__loop_to_end(self.make_visible)
 
-    def __make_visible(self):
+    def __loop_to_end(self, func):
         current_row = self.start
         while True:
             current = current_row
             while current.right is not None:
                 current = current.right
-                current.visible = True
-                current.draw()
+                func(current)
             if current == self.exit:
                 break
             current_row = current_row.down
-            current_row.visible = True
-            current_row.draw()
-
+            func(current_row)
+            
+    def make_visible(self, current):
+        current.visible = True
+        current.draw()
 

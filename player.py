@@ -4,6 +4,8 @@ class Player:
     def __init__(self, hp, attack, maze, interface, triang):
         self.icon = triang
         self.level = 1
+        self.to_next_level = self.level*100
+        self.exp = 0
         self.hp = hp
         self.attack = attack
         self.gold = 0
@@ -32,6 +34,8 @@ class Player:
                     raise Exception("wrong direction in Player/move")
             if self.pos.power_up is not None:
                 self.pos.power_up.pick_up(self.pos, self)
+            elif self.pos.enemy is not None:
+                self.attack_enemy(self.pos.enemy)
             self.draw_pos()
 
     def right_dir(self, dir):
@@ -61,11 +65,33 @@ class Player:
         self.interface.update_interface(self, "attack")   
 
     def health_potion(self):
-        if self.hp < 5:
-            self.hp += 1
-            self.interface.update_interface(self, "heal")   
+        self.hp += 1
+        self.interface.update_interface(self, "heal")   
 
     def get_gold(self):
         self.gold += 5
         self.interface.update_interface(self, "gold") 
+
+    def attack_enemy(self, enemy):
+        defeted = False
+        while True:
+            self.hp -= enemy.attack
+            enemy.hp -= self.attack
+            if self.hp <= 0:
+                defeted = True
+                break
+            elif enemy.hp <= 0:
+                break
+        if not defeted:
+            self.exp += enemy.exp
+            if self.exp > self.to_next_level:
+                self.level_up()
+            self.interface.update_interface(self)
+            self.pos.enemy = None
+        self.pos.draw()
+
+    def level_up(self):
+        self.level += 1
+        self.exp -= self.to_next_level
+
 

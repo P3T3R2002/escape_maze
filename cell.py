@@ -1,6 +1,7 @@
 from window import*
 from power_up import*
 from drawable import*
+from enemy import*
 import random
 
 
@@ -39,7 +40,10 @@ class Cell:
                     self.walls[wall][0].draw(color)
                 else:
                     self.walls[wall][0].draw("white")
-            if self.power_up is not None:
+            if self.enemy is not None:
+                print("//////")
+                self.enemy.draw()
+            elif self.power_up is not None:
                 self.power_up.draw()
         else:
             self.rect.draw(color)
@@ -68,26 +72,24 @@ class Cell:
                 looking_at.visible = True
                 looking_at.draw()
 
-    def get_power_up(self, rarity):
-        if rarity == 0:
-            return
-        else:
-            rand = random.randrange(1, 100)
-            if rand < rarity:
-                rand = random.randrange(1, 6)
-                match(rand):
-                    case(1):
-                        self.power_up = Map(self, self.win)
-                    case(2):
-                        self.power_up = Destroy(self, self.win)
-                    case(3):
-                        self.power_up = Gold(self, self.win)
-                    case(4):
-                        self.power_up = Heal(self, self.win)
-                    case(5):
-                        self.power_up = Weapon_up(self, self.win)
-                    case _:
-                        raise Exception("problem in labyrinth/Cell/get_power_up")
+    def get_power_up(self):
+        rand = random.randrange(1, 100)
+        if rand < 6:
+            rand = random.randrange(1, 6)
+            match(rand):
+                case(1):
+                    self.power_up = Map(self, self.win)
+                case(2):
+                    self.power_up = Destroy(self, self.win)
+                case(3):
+                    self.power_up = Gold(self, self.win)
+                case(4):
+                    self.power_up = Heal(self, self.win)
+                case(5):
+                    self.power_up = Weapon_up(self, self.win)
+                case _:
+                    raise Exception("problem in labyrinth/Cell/get_power_up")
+        self.draw()
 
     def destroy_walls(self):
         if self.up is not None:
@@ -104,9 +106,14 @@ class Cell:
             self.right.delete_wall("left")
         self.draw()
 
-    def get_enemy(self, rarity):
+    def get_enemy(self):
+        if self.exit:
+            self.enemy = Boss(self, self.win)
         if not self.power_up:
-            self.enemy = None
+            if random.randrange(1, 100) < 5:
+                self.enemy = Grunt(self, self.win)
+
+
 
     def __repr__(self):
         return f'{self.walls["up"]}, {self.walls["right"]}, {self.walls["down"]}, {self.walls["left"]}'
