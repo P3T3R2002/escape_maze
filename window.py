@@ -9,6 +9,7 @@ class Window:
         self.root.bind("s", self.move_down)
         self.root.bind("a", self.move_left)
         self.root.bind("d", self.move_right)
+        self.root.bind("<space>", self.destroy)
         self.canvas = Canvas(self.root, width=width, height=height, background = "white")
         self.canvas.pack(fill="both", expand=True)
         self.running = False
@@ -23,6 +24,8 @@ class Window:
         self.controller.move_player('left')
     def move_right(self, event):
         self.controller.move_player('right')
+    def destroy(self, event):
+        self.controller.player.destroy_wall()
 
     def redraw(self):
         self.root.update()

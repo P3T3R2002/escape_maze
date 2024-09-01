@@ -9,11 +9,12 @@ class Power_up:
     def draw(self):
         self.__item.draw(self.__color)
 
-    def __repr__(self) -> str:
-        return f"{self.__item} : {self.__color}"
-
     def pick_up(self, cell):
         cell.power_up = None
+        cell.draw()
+
+    def __repr__(self) -> str:
+        return f"{self.__item} : {self.__color}"
 
 
 class Map(Power_up):
@@ -21,8 +22,8 @@ class Map(Power_up):
         super().__init__(cell, win, "green")
         self.max_num = None
 
-    def pick_up(self, cell):
-        self._Power_up__item.win.controller.map()
+    def pick_up(self, cell, player):
+        player.maze.map()
         super().pick_up(cell)
         
 class Destroy(Power_up):
@@ -30,19 +31,8 @@ class Destroy(Power_up):
         super().__init__(cell, win, "blue")
         self.max_num = None
 
-    def pick_up(self, cell):
-        if cell.up is not None:
-            cell.delete_wall("up")
-            cell.up.delete_wall("down")
-        if cell.down is not None:
-            cell.delete_wall("down")
-            cell.down.delete_wall("up")
-        if cell.left is not None:
-            cell.delete_wall("left")
-            cell.left.delete_wall("right")
-        if cell.right is not None:
-            cell.delete_wall("right")
-            cell.right.delete_wall("left")
+    def pick_up(self, cell, player):
+        player.get_destroy()
         super().pick_up(cell)
 
 class Gold(Power_up):
@@ -50,8 +40,8 @@ class Gold(Power_up):
         super().__init__(cell, win, "yellow")
         self.max_num = None
         
-    def pick_up(self, cell):
-        self._Power_up__item.win.controller.gold()
+    def pick_up(self, cell, player):
+        player.get_gold()
         super().pick_up(cell)
     
 class Weapon_up(Power_up):
@@ -59,8 +49,8 @@ class Weapon_up(Power_up):
         super().__init__(cell, win, "gray")
         self.max_num = None
 
-    def pick_up(self, cell):
-        self._Power_up__item.win.controller.attack_up()
+    def pick_up(self, cell, player):
+        player.wepon_upgrade()
         super().pick_up(cell)
 
 class Heal(Power_up):
@@ -68,8 +58,8 @@ class Heal(Power_up):
         super().__init__(cell, win, "red")
         self.max_num = None
 
-    def pick_up(self, cell):
-        self._Power_up__item.win.controller.heal_up()
+    def pick_up(self, cell, player):
+        player.health_potion()
         super().pick_up(cell)
 
 

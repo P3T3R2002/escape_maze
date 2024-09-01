@@ -174,30 +174,6 @@ class Labyrinth:
             for j in range(0, self.__num_cols):
                 cells[i][j].visited = False
 
-    #reveals the visible Cells
-    def visible_cells(self, pos):
-        for dir in ["up", "left", "down", "right"]:
-            looking_at = pos
-            while not looking_at.walls[dir][1]:
-                if not looking_at.visible:
-                    looking_at.visible = True
-                    looking_at.draw()
-                match(dir):
-                    case("up"):
-                        looking_at = looking_at.up
-                    case("left"):
-                        looking_at = looking_at.left
-                    case("down"):
-                        if not looking_at.exit:
-                            looking_at = looking_at.down
-                        else:
-                            break
-                    case("right"):
-                        looking_at = looking_at.right
-            if not looking_at.visible:
-                looking_at.visible = True
-                looking_at.draw()
-
     #for solve_s(NOT CALLED)
     def solve(self, current = None):
         if current is None:
