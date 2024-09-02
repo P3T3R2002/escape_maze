@@ -20,16 +20,14 @@ class Power_up:
 class Map(Power_up):
     def __init__(self, cell, win = None):
         super().__init__(cell, win, "green")
-        self.max_num = None
 
     def pick_up(self, cell, player):
-        player.maze.map()
+        player.maze.reveal_maze()
         super().pick_up(cell)
         
 class Destroy(Power_up):
     def __init__(self, cell, win = None):
         super().__init__(cell, win, "blue")
-        self.max_num = None
 
     def pick_up(self, cell, player):
         player.get_destroy()
@@ -38,7 +36,6 @@ class Destroy(Power_up):
 class Gold(Power_up):
     def __init__(self, cell, win = None):
         super().__init__(cell, win, "yellow")
-        self.max_num = None
         
     def pick_up(self, cell, player):
         player.get_gold()
@@ -47,7 +44,6 @@ class Gold(Power_up):
 class Weapon_up(Power_up):
     def __init__(self, cell, win = None):
         super().__init__(cell, win, "gray")
-        self.max_num = None
 
     def pick_up(self, cell, player):
         player.wepon_upgrade()
@@ -56,7 +52,6 @@ class Weapon_up(Power_up):
 class Heal(Power_up):
     def __init__(self, cell, win = None):
         super().__init__(cell, win, "red")
-        self.max_num = None
 
     def pick_up(self, cell, player):
         player.health_potion()

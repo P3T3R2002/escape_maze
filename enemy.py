@@ -1,14 +1,15 @@
 from drawable import Triangle
+from constants import*
 
 class Enemy:
-    def __init__(self, win, level, hp, attack, cell, exp, color):
+    def __init__(self, win, level, hp, attack, cell, color):
         self.level = level
         self.hp = hp
         self.attack = attack
         self.pos = cell
         self.icon = Triangle(win)
         self.icon.set_points(self.get_coords())
-        self.exp = exp
+        self.exp = self.level*100
         self.color = color
 
     def draw(self):
@@ -21,17 +22,17 @@ class Enemy:
 
 class Boss(Enemy):
     def __init__(self, pos, win):
-        super().__init__(win, 10, 20, 5, pos, 1000, "purple")
+        super().__init__(win, Boss_level, Boss_hp, Boss_attack, pos, "purple")
 
 class Elite(Enemy):
     def __init__(self, pos, win):
-        super().__init__(win, 6, 9, 3, pos, 600, "red")
+        super().__init__(win, Elit_level, Elit_hp, Elit_attack, pos, "red")
 
 class Basic(Enemy):
     def __init__(self, pos, win):
-        super().__init__(win, 3, 5, 2, pos, 300, "orange")
+        super().__init__(win, Basic_level, Basic_hp, Basic_attack, pos, "orange")
 
 class Grunt(Enemy):
     def __init__(self, pos, win):
-        super().__init__(win, 1, 2, 1, pos, 100, "yellow")
+        super().__init__(win, Grunt_level, Grunt_hp, Grunt_attack, pos, "yellow")
 

@@ -14,15 +14,18 @@ class Labyrinth:
         num_cols,
         cell_size,
         win = None,
-        power_up_rarity = 0,
     ):
         self.__x = x1
         self.__y = y1
         self.__num_rows = num_rows
         self.__num_cols = num_cols
         self.__cell_size = cell_size
-        self.power_up_rarity = power_up_rarity
         self.win = win
+        self.is_there_map = False
+        self.destroy_count = 0
+        self.gold_count = 0
+        self.wepon_count = 0
+        self.heal_count = 0
         self.__found_exit = False
         self.exit = None
         self.start = None
@@ -46,7 +49,7 @@ class Labyrinth:
         self.__break_exit()
         self.__break_walls_s()
         self.__reset_visited(cells)
-        self.__loop_to_end(Cell.get_power_up)
+        self.power_up()
         self.__loop_to_end(Cell.get_enemy)
         self.__loop_to_end(Cell.draw)
 
@@ -214,7 +217,7 @@ class Labyrinth:
         else:
             return None
 
-    def map(self):
+    def reveal_maze(self):
         self.__loop_to_end(self.make_visible)
 
     def __loop_to_end(self, func):
@@ -223,13 +226,42 @@ class Labyrinth:
             current = current_row
             while current.right is not None:
                 current = current.right
-                func(current)
+                ret = func(current)
+                if ret is not None:
+                    ret(self)
             if current == self.exit:
                 break
             current_row = current_row.down
-            func(current_row)
+            ret = func(current_row)
+            if ret is not None:
+                ret(self)
             
     def make_visible(self, current):
         current.visible = True
         current.draw()
+
+    #places pover ups in cells
+    def make_power_up(self, cell):
+        ret = cell.get_power_up(self.is_there_map, self.gold_count, self.destroy_count, self.wepon_count, self.heal_count)
+        if ret is None:
+            return
+        match(ret):
+            case("map"):
+                self.is_there_map = True
+            case("gold"):
+                self.gold_count += 1
+            case("destroy"):
+                self.destroy_count += 1
+            case("wepon"):
+                self.wepon_count += 1
+            case("heal"):
+                self.heal_count += 1
+            case _:
+                raise Exception("wrong return in Labirinth/make_power_up")
+
+    #loops until the required power ups are met
+    def power_up(self):
+        while not self.is_there_map or self.destroy_count < min_destroy or self.wepon_count < min_wepon or self.heal_count < min_heal:
+            self.__loop_to_end(self.make_power_up)
+            print(self.is_there_map, self.destroy_count, self.gold_count, self.wepon_count, self.heal_count)
 

@@ -71,21 +71,51 @@ class Cell:
                 looking_at.visible = True
                 looking_at.draw()
 
-    def get_power_up(self):
-        rand = random.randrange(1, 100)
-        if rand < 6:
-            rand = random.randrange(1, 6)
+    def get_power_up(self, map, gold, destroy, wepon, heal):
+        rand = random.randrange(0, 200)
+        if rand < 10:
+            rand = random.randrange(1, 11)
             match(rand):
                 case(1):
-                    self.power_up = Map(self, self.win)
+                    if not map:
+                        self.power_up = Map(self, self.win)
+                        return "map"
                 case(2):
-                    self.power_up = Destroy(self, self.win)
+                    if destroy < max_destroy:
+                        self.power_up = Destroy(self, self.win)
+                        return "destroy"
                 case(3):
-                    self.power_up = Gold(self, self.win)
+                    if destroy < max_destroy:
+                        self.power_up = Destroy(self, self.win)
+                        return "destroy"
                 case(4):
-                    self.power_up = Heal(self, self.win)
+                    if gold < max_gold:
+                        self.power_up = Gold(self, self.win)
+                        return "gold"
                 case(5):
-                    self.power_up = Weapon_up(self, self.win)
+                    if gold < max_gold:
+                        self.power_up = Gold(self, self.win)
+                        return "gold"
+                case(6):
+                    if wepon < max_wepon:
+                        self.power_up = Weapon_up(self, self.win)
+                        return "wepon"
+                case(7):
+                    if wepon < max_wepon:
+                        self.power_up = Weapon_up(self, self.win)
+                        return "wepon"
+                case(8):
+                    if heal < max_heal:
+                        self.power_up = Heal(self, self.win)
+                        return "heal"
+                case(9):
+                    if heal < max_heal:
+                        self.power_up = Heal(self, self.win)
+                        return "heal"
+                case(10):
+                    if heal < max_heal:
+                        self.power_up = Heal(self, self.win)
+                        return "heal"
                 case _:
                     raise Exception("problem in labyrinth/Cell/get_power_up")
         self.draw()
@@ -117,8 +147,6 @@ class Cell:
                 self.enemy = Basic(self, self.win)
             elif rand < 7:
                 self.enemy = Elite(self, self.win)
-
-
 
     def __repr__(self):
         return f'{self.walls["up"]}, {self.walls["right"]}, {self.walls["down"]}, {self.walls["left"]}'
