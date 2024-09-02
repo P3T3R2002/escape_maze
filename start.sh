@@ -1,1 +1,0 @@
-python3 program_code/main.py
