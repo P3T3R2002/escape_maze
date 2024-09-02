@@ -144,7 +144,7 @@ class Cell:
             if rand < 4:
                 self.enemy = Grunt(self, self.win)
             elif rand < 6:
-                self.enemy = Basic(self, self.win)
+                self.enemy = Solder(self, self.win)
             elif rand < 7:
                 self.enemy = Elite(self, self.win)
 

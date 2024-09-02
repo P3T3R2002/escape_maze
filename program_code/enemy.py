@@ -28,9 +28,9 @@ class Elite(Enemy):
     def __init__(self, pos, win):
         super().__init__(win, Elit_level, Elit_hp, Elit_attack, pos, "red")
 
-class Basic(Enemy):
+class Solder(Enemy):
     def __init__(self, pos, win):
-        super().__init__(win, Basic_level, Basic_hp, Basic_attack, pos, "orange")
+        super().__init__(win, Solder_level, Solder_hp, Solder_attack, pos, "orange")
 
 class Grunt(Enemy):
     def __init__(self, pos, win):

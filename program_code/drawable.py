@@ -66,10 +66,11 @@ class Text(Drawable):
     def __init__(self, win, first, txt) -> None:
         super().__init__(win, first)
         self.txt = txt
-        self.draw()
+        self.draw(False)
 
-    def draw(self):
-        self.delete()
+    def draw(self, border = True):
+        if border:
+            self.delete()
         self.win.canvas.create_text(self.point_1, text=self.txt)
 
     def delete(self):
