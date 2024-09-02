@@ -74,24 +74,33 @@ class Player:
 
     def attack_enemy(self, enemy):
         defeted = False
-        while True:
-            self.hp -= enemy.attack
-            enemy.hp -= self.attack
-            if self.hp <= 0:
-                defeted = True
-                break
-            elif enemy.hp <= 0:
-                break
+        if enemy.hp*2 > self.attack:
+            while True:
+                self.hp -= enemy.attack
+                enemy.hp -= self.attack
+                self.interface.update_interface(self, "heal")
+                if self.hp <= 0:
+                    defeted = True
+                    break
+                elif enemy.hp <= 0:
+                    break
         if not defeted:
             self.exp += enemy.exp
-            if self.exp > self.to_next_level:
+            if self.exp >= self.to_next_level:
                 self.level_up()
-            self.interface.update_interface(self)
+            self.interface.update_interface(self, "exp")
             self.pos.enemy = None
         self.pos.draw()
 
     def level_up(self):
         self.level += 1
+        self.hp += 1
+        self.attack += 1
+        self.interface.update_interface(self, "heal")
+        self.interface.update_interface(self, "attack")
         self.exp -= self.to_next_level
+        self.to_next_level = self.level*100
+        if self.to_next_level <= self.exp:
+            self.level_up()
 
 

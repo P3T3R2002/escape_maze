@@ -21,9 +21,17 @@ class Enemy:
 
 class Boss(Enemy):
     def __init__(self, pos, win):
-        super().__init__(win, 5, 15, 3, pos, 1000, "red")
+        super().__init__(win, 10, 20, 5, pos, 1000, "purple")
+
+class Elite(Enemy):
+    def __init__(self, pos, win):
+        super().__init__(win, 6, 9, 3, pos, 600, "red")
+
+class Basic(Enemy):
+    def __init__(self, pos, win):
+        super().__init__(win, 3, 5, 2, pos, 300, "orange")
 
 class Grunt(Enemy):
     def __init__(self, pos, win):
-        super().__init__(win, 1, 2, 1, pos, 100, "purple")
+        super().__init__(win, 1, 2, 1, pos, 100, "yellow")
 

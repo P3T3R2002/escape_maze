@@ -41,7 +41,6 @@ class Cell:
                 else:
                     self.walls[wall][0].draw("white")
             if self.enemy is not None:
-                print("//////")
                 self.enemy.draw()
             elif self.power_up is not None:
                 self.power_up.draw()
@@ -109,9 +108,15 @@ class Cell:
     def get_enemy(self):
         if self.exit:
             self.enemy = Boss(self, self.win)
+            return
+        rand = random.randrange(1, 100)
         if not self.power_up:
-            if random.randrange(1, 100) < 5:
+            if rand < 4:
                 self.enemy = Grunt(self, self.win)
+            elif rand < 6:
+                self.enemy = Basic(self, self.win)
+            elif rand < 7:
+                self.enemy = Elite(self, self.win)
 
 
 
