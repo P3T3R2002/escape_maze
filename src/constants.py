@@ -1,3 +1,18 @@
+# labytinth
+labyrinth_x = 500
+labyrinth_y = 100
+row_num = 20
+col_num = 20
+cell_size = 40
+
+# interface
+interface_x = 200
+interface_y = 100
+
+# window
+window_width = 1400
+window_height = 1000
+
 # power_up
 min_map = 1
 max_map = 1
@@ -13,6 +28,10 @@ max_wepon = 8
 
 min_heal = 6
 max_heal = 12
+
+# player
+player_hp = 4
+player_attack = 2
 
 # enemy
 Boss_level = 10

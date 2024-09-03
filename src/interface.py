@@ -1,16 +1,19 @@
 from drawable import*
+from constants import*
 
+    # draw interface
 class Interface:
-    def __init__(self, pos, win = None) -> None:
-        self.x = pos[0]
-        self.y = pos[1]
+    def __init__(self, win = None) -> None:
+        self.x = interface_x
+        self.y = interface_y
         self.win = win
-        self.title = Text(win, pos, "Labyrinth")
+        self.title = Text(win, (interface_x, interface_y), "Labyrinth")
         self.title.draw()
-        self.player = Text(win, (pos[0], pos[1]+35), "Player")
+        self.player = Text(win, (interface_x, interface_y+35), "Player")
         self.player.draw()
-        self.instructions = Instractions(win, pos)
+        self.instructions = Instractions(win, (interface_x, interface_y))
 
+    # called by Player/interact/pick_up
     def update_interface(self, player, power_up = None):
         match(power_up):
             case("exp"):
@@ -46,14 +49,17 @@ class Interface:
             case _:
                 raise Exception("wrong case in Interface/update_interface")
 
+    # called if won
     def won(self):
         Rectangle(self.win, Point(500, 100), Point(1300, 900)).draw("green")
         Text(self.win, (900, 500), "Congratulations\n       You Won")
 
+    # called if lost
     def lose(self):
         Rectangle(self.win, Point(500, 100), Point(1300, 900)).draw("red")
         Text(self.win, (900, 500), "Game Over\n   You Lose")
 
+    # draw instractions
 class Instractions:
     def __init__(self, win, pos) -> None:
         Text(win, (pos[0], pos[1]+300), "move up:")

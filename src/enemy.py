@@ -12,10 +12,12 @@ class Enemy:
         self.exp = self.level*100
         self.color = color
 
+    # draw enemy
     def draw(self):
         self.icon.set_points(self.get_coords())
         self.icon.draw(self.color)
     
+    # called by draw
     def get_coords(self):
         return self.pos.rect.point_1.pos[0], self.pos.rect.point_1.pos[1], self.pos.center.pos[0], self.pos.rect.point_2.pos[1], self.pos.rect.point_2.pos[0], self.pos.rect.point_1.pos[1]
 

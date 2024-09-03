@@ -8,19 +8,12 @@ import random
 class Labyrinth:
     def __init__(
         self,
-        x1,
-        y1,
-        num_rows,
-        num_cols,
-        cell_size,
         win = None,
     ):
-        self.__x = x1
-        self.__y = y1
-        self.__num_rows = num_rows
-        self.__num_cols = num_cols
-        self.__cell_size = cell_size
         self.win = win
+        self.__x = labyrinth_x
+        self.__y = labyrinth_y
+        self.__cell_size = cell_size
         self.is_there_map = False
         self.destroy_count = 0
         self.gold_count = 0
@@ -30,13 +23,22 @@ class Labyrinth:
         self.exit = None
         self.start = None
         self.__stack = []
-        self.__create_cells()
+        self.__create_labyrinth()
 
+    # create a labyrinth, called by __init__
+    def __create_labyrinth(self):
+        self.__create_cells()
+        self.__break_walls_s()
+        self.power_up()
+        self.__loop_to_end(Cell.get_enemy)
+        self.__loop_to_end(Cell.draw)
+
+    # called by __create_labyrinth
     def __create_cells(self):
         cells = []
-        for j in range(0, self.__num_rows):
+        for j in range(0, row_num):
             row = []
-            for i in range(0, self.__num_cols):
+            for i in range(0, col_num):
                 row.append(Cell(i*self.__cell_size + self.__x,
                                 i*self.__cell_size + self.__x + self.__cell_size,
                                 j*self.__cell_size + self.__y,
@@ -44,50 +46,29 @@ class Labyrinth:
                                 self.win
                                 ))
             cells.append(row)
-        self.__stack.append(cells[0][0])
+        self.start = cells[0][0]
+        self.exit = cells[-1][-1]
+        self.__stack.append(self.start)
         self.__create_graph(cells)
-        self.__break_exit()
-        self.__break_walls_s()
-        self.__reset_visited(cells)
-        self.power_up()
-        self.__loop_to_end(Cell.get_enemy)
-        self.__loop_to_end(Cell.draw)
 
+    # called by __create_cells
     def __create_graph(self, cells):
-        for i in range(0, self.__num_rows):
-            for j in range(0, self.__num_cols):
+        for i in range(0, row_num):
+            for j in range(0, col_num):
                 current = cells[i][j]
-                if i-1 in range(0, self.__num_rows) and j in range(0, self.__num_cols):
+                if i-1 in range(0, row_num) and j in range(0, col_num):
                     current.up = cells[i-1][j]
 
-                if i+1 in range(0, self.__num_rows) and j in range(0, self.__num_cols):
+                if i+1 in range(0, row_num) and j in range(0, col_num):
                     current.down = cells[i+1][j]
 
-                if i in range(0, self.__num_rows) and j-1 in range(0, self.__num_cols):
+                if i in range(0, row_num) and j-1 in range(0, col_num):
                     current.left = cells[i][j-1]
 
-                if i in range(0, self.__num_rows) and j+1 in range(0, self.__num_cols):
+                if i in range(0, row_num) and j+1 in range(0, col_num):
                     current.right = cells[i][j+1]
 
-    def __animate(self):
-        self.win.redraw()
-        time.sleep(0.01)
-
-    def __break_exit(self):
-        temp = self.__stack[-1]
-        self.start = temp
-        for i in range(self.__num_rows-1):
-            temp = temp.down
-        for i in range(self.__num_cols-1):
-            temp = temp.right
-        temp.delete_wall("down")
-        self.exit = temp
-        temp.exit = True
-
-    def get_pos(self):
-        return self.__stack[0]
-
-    #for maze generation
+    # for maze generation, called by __create_labyrinth
     def __break_walls_s(self):
         while len(self.__stack) != 0:
             self.__stack[-1].visited = True        
@@ -96,8 +77,9 @@ class Labyrinth:
                 self.__stack.pop()
             else:
                 self.__move_to_next(possible_next)
+        self.__break_exit()
         
-    #for maze generation
+    # for maze generation, called by __break_walls_s
     def __add_unvisited_neighbors(self, current):
         possible_next = []
         if current.left is not None and not current.left.visited:
@@ -116,7 +98,7 @@ class Labyrinth:
             return None
         return possible_next
 
-    #for maze generation 
+    # for maze generation, called by __break_walls_s
     def __move_to_next(self, possible_next):
             match(possible_next[random.randrange(0, len(possible_next))]):
                 case("up"):
@@ -166,18 +148,80 @@ class Labyrinth:
 
                     case _:
                         raise Exception("Problem in Maze/__move_to_next")
+    
+    # called by __break_walls_s
+    def __break_exit(self):
+        self.exit.exit = True
+        self.exit.delete_wall("down")
+   
+    # helper function to __reset_visited, make_visible, make_power_up, Cell.get_enemy, Cell.draw
+    def __loop_to_end(self, func):
+        current_row = self.start
+        while True:
+            current = current_row
+            while current.right is not None:
+                current = current.right
+                ret = func(current)
+                if ret is not None:
+                    ret(self)
+            if current == self.exit:
+                break
+            current_row = current_row.down
+            ret = func(current_row)
+            if ret is not None:
+                ret(self)
+            
+    # reveals the maze with __loop_to_end
+    def reveal_maze(self):
+        self.__loop_to_end(self.make_visible)
 
-    #reset visited
-    def __reset_visited(self, cells):      
-        self.__stack = [cells[0][0]]
-        for i in range(0, self.__num_rows):
-            for j in range(0, self.__num_cols):
-                cells[i][j].visited = False
+    #makes cell visible
+    def make_visible(self, current):
+        current.visible = True
+        current.draw()
+
+    #places pover ups in cells
+    def make_power_up(self, cell):
+        ret = cell.get_power_up(self.is_there_map, self.gold_count, self.destroy_count, self.wepon_count, self.heal_count)
+        if ret is None:
+            return
+        match(ret):
+            case("map"):
+                self.is_there_map = True
+            case("gold"):
+                self.gold_count += 1
+            case("destroy"):
+                self.destroy_count += 1
+            case("wepon"):
+                self.wepon_count += 1
+            case("heal"):
+                self.heal_count += 1
+            case _:
+                raise Exception("wrong return in Labirinth/make_power_up")
+
+    #loops until the required power ups are met
+    def power_up(self):
+        while not self.is_there_map or self.destroy_count < min_destroy or self.wepon_count < min_wepon or self.heal_count < min_heal:
+            self.__loop_to_end(self.make_power_up)
+
+    # return starting pos to player
+    def get_pos(self):
+        return self.start
+
+    # for solve(NOT CALLED)
+    def __reset_visited(self, cell):  
+        cell.visited = False  
+
+    # (NOT CALLED)
+    def __animate(self):
+        self.win.redraw()
+        time.sleep(0.01)
 
     #for solve_s(NOT CALLED)
     def solve(self, current = None):
         if current is None:
-            current = self.__stack[-1]
+            current = self.start
+        self.__loop_to_end(self.__reset_visited)
         self.__solve_s(current)
 
     #solve the maze(NOT CALLED)
@@ -216,52 +260,3 @@ class Labyrinth:
             return current.up
         else:
             return None
-
-    def reveal_maze(self):
-        self.__loop_to_end(self.make_visible)
-
-    def __loop_to_end(self, func):
-        current_row = self.start
-        while True:
-            current = current_row
-            while current.right is not None:
-                current = current.right
-                ret = func(current)
-                if ret is not None:
-                    ret(self)
-            if current == self.exit:
-                break
-            current_row = current_row.down
-            ret = func(current_row)
-            if ret is not None:
-                ret(self)
-            
-    def make_visible(self, current):
-        current.visible = True
-        current.draw()
-
-    #places pover ups in cells
-    def make_power_up(self, cell):
-        ret = cell.get_power_up(self.is_there_map, self.gold_count, self.destroy_count, self.wepon_count, self.heal_count)
-        if ret is None:
-            return
-        match(ret):
-            case("map"):
-                self.is_there_map = True
-            case("gold"):
-                self.gold_count += 1
-            case("destroy"):
-                self.destroy_count += 1
-            case("wepon"):
-                self.wepon_count += 1
-            case("heal"):
-                self.heal_count += 1
-            case _:
-                raise Exception("wrong return in Labirinth/make_power_up")
-
-    #loops until the required power ups are met
-    def power_up(self):
-        while not self.is_there_map or self.destroy_count < min_destroy or self.wepon_count < min_wepon or self.heal_count < min_heal:
-            self.__loop_to_end(self.make_power_up)
-            print(self.is_there_map, self.destroy_count, self.gold_count, self.wepon_count, self.heal_count)
-

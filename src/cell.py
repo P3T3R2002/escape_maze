@@ -7,8 +7,6 @@ import random
 
 class Cell:
     def __init__(self, x1, x2,y1, y2, win = None):
-        self.power_up = None
-        self.enemy = None
         self.center = Point((x1+x2)/2, (y1+y2)/2)
         self.rect = Rectangle(win, Point(x1, y1), Point(x2, y2))
         self.walls = { "right": [Line(win, Point(x2, y1), Point(x2, y2)), True],
@@ -21,17 +19,21 @@ class Cell:
         self.left = None
         self.up = None
         self.down = None
-        self.exit = False
+        self.power_up = None
         self.enemy = None
+        self.exit = False
         self.visited = False
         self.visible = False
 
+    # set wall
     def set_wall(self, wall):
         self.walls[wall][1] = True
 
+    # delete wall
     def delete_wall(self, wall):
         self.walls[wall][1] = False
 
+    # draw walls
     def draw(self, color = "black"):
         if self.visible:
             self.rect.draw("white")
@@ -47,7 +49,7 @@ class Cell:
         else:
             self.rect.draw(color)
     
-    #reveals the visible Cells
+    #reveals the visible Cells after move
     def visible_cells(self):
         for dir in ["up", "left", "down", "right"]:
             looking_at = self
@@ -71,6 +73,7 @@ class Cell:
                 looking_at.visible = True
                 looking_at.draw()
 
+    # create random power_up
     def get_power_up(self, map, gold, destroy, wepon, heal):
         rand = random.randrange(0, 200)
         if rand < 10:
@@ -120,6 +123,21 @@ class Cell:
                     raise Exception("problem in labyrinth/Cell/get_power_up")
         self.draw()
 
+    # create random enemys
+    def get_enemy(self):
+        if self.exit:
+            self.enemy = Boss(self, self.win)
+            return
+        rand = random.randrange(1, 100)
+        if not self.power_up:
+            if rand < 4:
+                self.enemy = Grunt(self, self.win)
+            elif rand < 6:
+                self.enemy = Solder(self, self.win)
+            elif rand < 7:
+                self.enemy = Elite(self, self.win)
+
+    # destroy walls by desrtoy power_up
     def destroy_walls(self):
         if self.up is not None:
             self.delete_wall("up")
@@ -134,19 +152,6 @@ class Cell:
             self.delete_wall("right")
             self.right.delete_wall("left")
         self.draw()
-
-    def get_enemy(self):
-        if self.exit:
-            self.enemy = Boss(self, self.win)
-            return
-        rand = random.randrange(1, 100)
-        if not self.power_up:
-            if rand < 4:
-                self.enemy = Grunt(self, self.win)
-            elif rand < 6:
-                self.enemy = Solder(self, self.win)
-            elif rand < 7:
-                self.enemy = Elite(self, self.win)
 
     def __repr__(self):
         return f'{self.walls["up"]}, {self.walls["right"]}, {self.walls["down"]}, {self.walls["left"]}'
